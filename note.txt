@@ -1,0 +1,18 @@
+
+flowId=$(curl -s -X GET \
+ -H "Accept: application/json" \
+ http://127.0.0.1:4433/self-service/login/api | jq -r '.id')
+
+oStartLoginFlow=$(curl -s -X GET -H "Accept: application/jso n" "http://127.0.0.1:4433/self-service/login/flows?id=$flowId")
+
+
+actionUrl=$(echo  $oStartLoginFlow | jq -r '.ui.action')
+
+oSuccessResponse=$(curl -s -X POST \
+ -H  "Accept: application/json" -H "Content-Type: application/json" \
+ -d  '{"identifier": "yunerou@gmail.com", "password": "ASDFzxcv123$", "method": "password"}' \
+ $actionUrl)
+
+sessionToken=$(echo $oSuccessResponse | jq -r '.session_token')
+curl -s -H "Authorization: Bearer $sessionToken" \
+  http://127.0.0.1:4433/sessions/whoami | jq
